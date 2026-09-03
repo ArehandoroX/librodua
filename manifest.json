@@ -1,0 +1,58 @@
+{
+  "name": "Historias y Colores del Catatumbo - Libro Inclusivo DUA",
+  "short_name": "Catatumbo DUA",
+  "description": "Libro gamificado interactivo e inclusivo sobre las memorias del Catatumbo, con principios de Diseño Universal para el Aprendizaje (DUA).",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f766e",
+  "theme_color": "#0f766e",
+  "id": "com.catatumbo.duabook",
+  "categories": [
+    "education",
+    "books",
+    "games"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Portada del Libro Inclusivo Catatumbo"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Vista de actividades gamificadas"
+    }
+  ]
+}

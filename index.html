@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="description" content="Libro Gamificado Inclusivo sobre memorias de vida y dignidad del Catatumbo con diseño universal (DUA).">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>Historias y Colores de mi Región - Libro Gamificado Inclusivo</title>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- OpenDyslexic Font -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/opendyslexic@2.1.0/css/opendyslexic.min.css">
+  
+  <style>
+    /* Clases de Accesibilidad DUA */
+    .font-opendyslexic {
+      font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+    }
+    
+    /* Modo Alto Contraste */
+    body.high-contrast {
+      background-color: #000000 !important;
+      color: #ffff00 !important;
+    }
+    body.high-contrast header, 
+    body.high-contrast nav, 
+    body.high-contrast section,
+    body.high-contrast footer,
+    body.high-contrast .card-box {
+      background-color: #000000 !important;
+      color: #ffff00 !important;
+      border-color: #ffff00 !important;
+    }
+    body.high-contrast button, 
+    body.high-contrast a,
+    body.high-contrast input {
+      background-color: #000000 !important;
+      color: #00ffff !important;
+      border: 2px solid #00ffff !important;
+    }
+    body.high-contrast .text-muted {
+      color: #ffffff !important;
+    }
+    
+    /* Indicador de Foco Accesible */
+    *:focus-visible {
+      outline: 4px solid #f59e0b !important;
+      outline-offset: 3px !important;
+    }
+
+    /* Transición suave */
+    .fade-enter {
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-amber-50 text-slate-900 font-sans min-h-screen flex flex-col antialiased transition-all duration-200">
+
+  <!-- BARRA DE ACCESIBILIDAD UNIVERSAL (DUA) -->
+  <header class="sticky top-0 z-50 bg-teal-800 text-white shadow-md border-b-2 border-teal-900 px-4 py-2" role="region" aria-label="Barra de herramientas de accesibilidad">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl" aria-hidden="true">🕊️</span>
+        <h1 class="text-sm md:text-base font-bold tracking-tight">Historias y Colores del Catatumbo</h1>
+      </div>
+      
+      <!-- Controles DUA -->
+      <div class="flex flex-wrap items-center gap-2 text-xs md:text-sm">
+        <button id="btn-font-toggle" onclick="toggleDyslexicFont()" class="px-2.5 py-1.5 bg-teal-700 hover:bg-teal-600 rounded font-medium border border-teal-500 focus:ring" aria-pressed="false" title="Alternar tipografía legible para dislexia">
+          <span aria-hidden="true">🔤</span> OpenDyslexic
+        </button>
+        <button id="btn-contrast-toggle" onclick="toggleHighContrast()" class="px-2.5 py-1.5 bg-teal-700 hover:bg-teal-600 rounded font-medium border border-teal-500 focus:ring" aria-pressed="false" title="Alternar alto contraste WCAG AAA">
+          <span aria-hidden="true">🌓</span> Contraste
+        </button>
+        <div class="flex items-center bg-teal-700 rounded border border-teal-500 overflow-hidden" role="group" aria-label="Ajuste de tamaño de texto">
+          <button onclick="changeFontSize(-1)" class="px-2 py-1.5 hover:bg-teal-600 font-bold" aria-label="Reducir tamaño del texto">A-</button>
+          <span id="font-size-indicator" class="px-2 py-1.5 font-bold bg-teal-800 text-xs">100%</span>
+          <button onclick="changeFontSize(1)" class="px-2 py-1.5 hover:bg-teal-600 font-bold" aria-label="Aumentar tamaño del texto">A+</button>
+        </div>
+        <button id="btn-pwa-install" onclick="installPWA()" class="hidden px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded border border-amber-300 shadow animate-pulse" aria-label="Instalar como aplicación en este dispositivo">
+          📥 Instalar App
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- BARRA DE PROGRESO DEL LIBRO -->
+  <div class="bg-teal-100 border-b border-teal-200 py-2 px-4 sticky top-12 z-40" role="region" aria-label="Progreso de la lectura">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-teal-900 text-xs md:text-sm" id="progress-text">Progreso: Portada</span>
+        <span class="text-xs bg-teal-200 text-teal-900 font-semibold px-2 py-0.5 rounded-full" id="score-badge">Puntaje: 0 pts</span>
+      </div>
+      <div class="w-full sm:w-64 bg-teal-200 rounded-full h-3 overflow-hidden" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" id="progress-bar-container">
+        <div id="progress-bar" class="bg-teal-600 h-3 rounded-full transition-all duration-300" style="width: 10%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENEDOR PRINCIPAL INTERACTIVO -->
+  <main class="flex-grow max-w-4xl mx-auto w-full p-4 md:p-6" id="main-content">
+
+    <!-- SECCIÓN 0: PORTADA -->
+    <section id="section-0" class="card-box bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-amber-200 text-center fade-enter" role="region" aria-labelledby="cover-title">
+      <div class="inline-block p-4 bg-teal-50 rounded-full mb-4">
+        <span class="text-5xl" aria-hidden="true">☀️</span>
+      </div>
+      <p class="text-xs md:text-sm font-semibold text-teal-800 uppercase tracking-widest mb-1">Centro Nacional de Memoria Histórica</p>
+      <h2 id="cover-title" class="text-2xl md:text-4xl font-extrabold text-teal-950 mb-3">HISTORIAS Y COLORES DE MI REGIÓN</h2>
+      <p class="text-base md:text-lg text-slate-700 font-medium mb-4 italic">Voces y memorias de niños, niñas y adolescentes del Catatumbo</p>
+      
+      <div class="bg-amber-100/70 border-l-4 border-amber-500 text-slate-800 p-4 rounded text-left my-6 text-sm md:text-base leading-relaxed">
+        <p class="font-bold mb-1">📘 Propósito Pedagógico e Inclusivo:</p>
+        <p>Este libro gamificado promueve la memoria colectiva, la dignidad y la resiliencia a través de relatos reales narrados en primera persona. Cuenta con <strong>Lectura Fácil</strong>, actividades accesibles por teclado, síntesis de voz y un informe descargable al completar el recorrido.</p>
+      </div>
+
+      <div class="flex justify-center mt-6">
+        <button onclick="goToSection(1)" class="px-6 py-3 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl shadow-md text-base md:text-lg flex items-center gap-2 focus:ring">
+          <span>Comenzar el Viaje</span>
+          <span aria-hidden="true">➡️</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 1: CAPÍTULO 1 -->
+    <section id="section-1" class="hidden card-box bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-amber-200 fade-enter" role="region" aria-labelledby="cap1-title">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-3 mb-4">
+        <div>
+          <span class="text-xs font-bold text-teal-700 uppercase">Capítulo 1 • La Gabarra, Tibú</span>
+          <h2 id="cap1-title" class="text-xl md:text-3xl font-bold text-teal-950">La historia de mi superprofesora</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleEasyRead(1)" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg text-xs md:text-sm border border-amber-600 focus:ring" aria-pressed="false" id="easy-btn-1">
+            🌱 Modo Lectura Fácil
+          </button>
+          <button onclick="readAloudText('cap1-content')" class="px-3 py-1.5 bg-teal-100 hover:bg-teal-200 text-teal-900 font-bold rounded-lg text-xs md:text-sm border border-teal-300 focus:ring" title="Leer en voz alta">
+            🔊 Escuchar
+          </button>
+        </div>
+      </div>
+
+      <!-- Texto Estándar -->
+      <div id="cap1-standard" class="space-y-4 text-slate-800 text-base md:text-lg leading-relaxed">
+        <p>Francisco Velandia me llamaron mis padres hace 27 años, en 1991, y ahora todo el mundo me conoce como Pacho o "el entrenador Pacho". Nací en la vereda Barrancas, corregimiento de La Gabarra, en el municipio de Tibú. Crecí pescando paletón en el río Catatumbo con mi papá y corriendo libre por el campo.</p>
+        <p>De niño era muy inquieto. Mi profesora Luz Estela siempre me llamaba la atención porque prefería trepar a los árboles o jugar metras en vez de estar sentado. Un día nos puso a soñar en el cuaderno: yo quería ser futbolista profesional como el Pibe Valderrama y recorrer los ríos en moto junto a mi gran compinche Jefferson.</p>
+        <p>En el año 2000, cuando tenía 10 años, una mañana llegamos a la escuela y encontramos a la profe Luz Estela muy asustada: venían hombres armados hacia la vereda. Como mis padres habían tenido que viajar a Cúcuta y no habían podido regresar por las lluvias, la profe no nos dejó solos. Nos tomó de la mano a mi hermana, a Jefferson y a mí, y emprendió con nosotros una larga travesía por el monte.</p>
+        <p>Pasamos la noche perdidos bajo los árboles, picados por los zancudos pero cuidados por ella. Al día siguiente, Jefferson me dijo que había soñado que la profe era una superprofesora con capa que salvaba a todos los niños. Un boga del río nos auxilió en su canoa y llegamos sanos y salvos a Tibú. Hoy soy entrenador de fútbol y educo con valentía, recordando a mi maestra protectora.</p>
+      </div>
+
+      <!-- Texto Lectura Fácil (Opcional simplificado DUA) -->
+      <div id="cap1-easy" class="hidden space-y-4 text-slate-900 text-lg md:text-xl leading-relaxed bg-amber-50 p-5 rounded-xl border border-amber-300">
+        <p>🔹 <strong>Me llamo Pacho.</strong> Vivo en el Catatumbo y soy entrenador de fútbol.</p>
+        <p>🔹 <strong>Mi infancia:</strong> De niño me gustaba pescar en el río, jugar metras y soñar con ser futbolista.</p>
+        <p>🔹 <strong>El peligro:</strong> Un día llegaron hombres armados al pueblo. Mis padres estaban lejos.</p>
+        <p>🔹 <strong>La valentía:</strong> Mi profesora Luz Estela no nos abandonó. Nos llevó con ella por la selva para protegernos.</p>
+        <p>🔹 <strong>La salvación:</strong> Un pescador nos ayudó con su canoa por el río. Llegamos seguros a casa.</p>
+        <p>🔹 <strong>Enseñanza:</strong> Los profesores y profesoras cuidan y salvan vidas con amor.</p>
+      </div>
+
+      <div class="flex justify-between items-center mt-8 pt-4 border-t border-amber-200">
+        <button onclick="goToSection(0)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg text-sm">⬅️ Portada</button>
+        <button onclick="goToSection('game-1')" class="px-5 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl shadow text-sm md:text-base flex items-center gap-2">
+          <span>Ir al Reto 1: Secuencia</span>
+          <span aria-hidden="true">🎮</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ACTIVIDAD 1: ORDENAR 6 FRASES -->
+    <section id="section-game-1" class="hidden card-box bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-amber-200 fade-enter" role="region" aria-labelledby="game1-title">
+      <div class="border-b border-amber-200 pb-3 mb-4">
+        <span class="text-xs font-bold text-amber-700 uppercase">Actividad 1 • Organización Temporal</span>
+        <h2 id="game1-title" class="text-xl md:text-2xl font-bold text-teal-950">Ordena los Hechos de la Historia de Pacho</h2>
+        <p class="text-sm text-slate-700 mt-1">Usa los botones <strong>Subir ⬆️</strong> y <strong>Bajar ⬇️</strong> o tu teclado para colocar las 6 frases en el orden cronológico correcto.</p>
+      </div>
+
+      <div class="flex items-center justify-between mb-3 text-xs md:text-sm font-semibold text-slate-600">
+        <span id="game1-attempts">Intentos restantes: 3 de 3</span>
+        <span id="game1-feedback-badge" class="hidden px-2 py-0.5 rounded text-white font-bold"></span>
+      </div>
+
+      <!-- Lista de Frases a Ordenar -->
+      <ul id="game1-list" class="space-y-2 mb-6" aria-label="Lista de frases para ordenar cronológicamente">
+        <!-- Generado dinámicamente con JS -->
+      </ul>
+
+      <!-- Pista visual / Pedagógica -->
+      <div id="game1-hint-box" class="hidden p-3 bg-amber-100 border-l-4 border-amber-500 text-amber-950 text-sm rounded mb-4" role="alert">
+        <!-- Contenido de pista dinámico -->
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-amber-200">
+        <button onclick="goToSection(1)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg text-sm">⬅️ Volver al Capítulo 1</button>
+        <div class="flex gap-2">
+          <button onclick="checkGame1()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow text-sm md:text-base">
+            Comprobar Orden ✨
+          </button>
+          <button id="btn-next-to-cap2" onclick="goToSection(2)" class="hidden px-5 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl shadow text-sm md:text-base">
+            Continuar al Capítulo 2 ➡️
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: CAPÍTULO 2 -->
+    <section id="section-2" class="hidden card-box bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-amber-200 fade-enter" role="region" aria-labelledby="cap2-title">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-3 mb-4">
+        <div>
+          <span class="text-xs font-bold text-teal-700 uppercase">Capítulo 2 • El Aserrío, Teorama</span>
+          <h2 id="cap2-title" class="text-xl md:text-3xl font-bold text-teal-950">La historia de la última gelatina</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleEasyRead(2)" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg text-xs md:text-sm border border-amber-600 focus:ring" aria-pressed="false" id="easy-btn-2">
+            🌱 Modo Lectura Fácil
+          </button>
+          <button onclick="readAloudText('cap2-content')" class="px-3 py-1.5 bg-teal-100 hover:bg-teal-200 text-teal-900 font-bold rounded-lg text-xs md:text-sm border border-teal-300 focus:ring" title="Leer en voz alta">
+            🔊 Escuchar
+          </button>
+        </div>
+      </div>
+
+      <!-- Texto Estándar -->
+      <div id="cap2-standard" class="space-y-4 text-slate-800 text-base md:text-lg leading-relaxed">
+        <p>Soy campesina catatumbera. Nací el 17 de febrero de 2003 en el corregimiento de El Aserrío, a dos horas de Teorama. Me siento profundamente conectada con la tierra y las plantas; con el río Catatumbo que recorre mi vereda y las montañas vivas.</p>
+        <p>Crecí sin mi papá, pero no porque él nos hubiera querido abandonar: la violencia nos lo arrebató cuando yo apenas tenía un año de edad. A veces los adultos creen que los niños pequeños no sienten ni recuerdan. Pero el vacío de mi padre siempre ha estado en mi corazón, especialmente en cada Navidad.</p>
+        <p>Mi hermano Ricardo me contó lo que ocurrió aquel miércoles de 2004: él venía de Ocaña con mi papá en el bus de línea. Mi padre le compró una bolsa con gelatinas de colores para traernos a todos en la casa, un arcoíris dulce. En medio de la carretera un retén armado detuvo el bus y le quitó la vida a mi padre.</p>
+        <p>Desde entonces, en cada uno de mis cumpleaños, Ricardo me regala un tarrito de gelatina. Es su forma de entregarme el regalo que papá me traía y de recordarme que su memoria, su amor y su presencia siguen vivos con nosotros.</p>
+      </div>
+
+      <!-- Texto Lectura Fácil -->
+      <div id="cap2-easy" class="hidden space-y-4 text-slate-900 text-lg md:text-xl leading-relaxed bg-amber-50 p-5 rounded-xl border border-amber-300">
+        <p>🔹 <strong>Soy una joven campesina</strong> de El Aserrío en Teorama.</p>
+        <p>🔹 <strong>La memoria de papá:</strong> Mi papá falleció a causa de la violencia cuando yo era una bebé.</p>
+        <p>🔹 <strong>El arcoíris de gelatina:</strong> Aquel último día, mi papá compró una bolsa de gelatinas de colores para sus hijos.</p>
+        <p>🔹 <strong>Un acto de amor:</strong> Cada año en mi cumpleaños, mi hermano Ricardo me entrega una gelatina.</p>
+        <p>🔹 <strong>Significado:</strong> El amor y el recuerdo de los seres queridos nunca se apagan.</p>
+      </div>
+
+      <div class="flex justify-between items-center mt-8 pt-4 border-t border-amber-200">
+        <button onclick="goToSection('game-1')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg text-sm">⬅️ Reto 1</button>
+        <button onclick="goToSection('game-2')" class="px-5 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl shadow text-sm md:text-base flex items-center gap-2">
+          <span>Ir al Reto 2: Sopa de Letras</span>
+          <span aria-hidden="true">🧩</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ACTIVIDAD 2: SOPA DE LETRAS NAVEGABLE POR TECLADO -->
+    <section id="section-game-2" class="hidden card-box bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-amber-200 fade-enter" role="region" aria-labelledby="game2-title">
+      <div class="border-b border-amber-200 pb-3 mb-4">
+        <span class="text-xs font-bold text-amber-700 uppercase">Actividad 2 • Memoria y Vocabulario</span>
+        <h2 id="game2-title" class="text-xl md:text-2xl font-bold text-teal-950">Sopa de Letras Accesible del Catatumbo</h2>
+        <p class="text-sm text-slate-700 mt-1">Encuentra las 5 palabras clave de la memoria. Puedes hacer clic o usar las <strong>flechas del teclado y Enter</strong> para seleccionar letras.</p>
+      </div>
+
+      <!-- Palabras a buscar con códigos de color -->
+      <div class="mb-4 flex flex-wrap gap-2 text-xs md:text-sm">
+        <span id="badge-GELATINA" class="px-3 py-1 bg-pink-100 border border-pink-400 text-pink-900 rounded-full font-bold">🍓 GELATINA</span>
+        <span id="badge-MEMORIA" class="px-3 py-1 bg-blue-100 border border-blue-400 text-blue-900 rounded-full font-bold">🧠 MEMORIA</span>
+        <span id="badge-CATATUMBO" class="px-3 py-1 bg-emerald-100 border border-emerald-400 text-emerald-900 rounded-full font-bold">🌿 CATATUMBO</span>
+        <span id="badge-ESPERANZA" class="px-3 py-1 bg-amber-100 border border-amber-400 text-amber-900 rounded-full font-bold">☀️ ESPERANZA</span>
+        <span id="badge-TEORAMA" class="px-3 py-1 bg-purple-100 border border-purple-400 text-purple-900 rounded-full font-bold">📍 TEORAMA</span>
+      </div>
+
+      <div class="flex items-center justify-between mb-3 text-xs md:text-sm font-semibold text-slate-600">
+        <span id="game2-status">Palabras encontradas: 0 de 5</span>
+        <button onclick="revealWordHint()" class="text-amber-700 hover:text-amber-900 underline font-bold" id="btn-word-hint">Pedir pista de color 💡</button>
+      </div>
+
+      <!-- Cuadrícula 10x10 accesible -->
+      <div class="flex justify-center my-4 overflow-x-auto">
+        <div id="wordsearch-grid" class="grid grid-cols-10 gap-1 bg-slate-800 p-2 rounded-xl shadow" role="grid" aria-label="Sopa de letras de 10 por 10 casillas">
+          <!-- Celdas creadas dinámicamente con JS -->
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-amber-200">
+        <button onclick="goToSection(2)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg text-sm">⬅️ Volver al Capítulo 2</button>
+        <button id="btn-next-to-cap3" onclick="goToSection(3)" class="hidden px-5 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl shadow text-sm md:text-base">
+          Continuar al Capítulo 3 ➡️
+        </button>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: CAPÍTULO 3 -->
+    <section id="section-3" class="hidden card-box bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-amber-200 fade-enter" role="region" aria-labelledby="cap3-title">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-3 mb-4">
+        <div>
+          <span class="text-xs font-bold text-teal-700 uppercase">Capítulo 3 • Hacarí, 1994</span>
+          <h2 id="cap3-title" class="text-xl md:text-3xl font-bold text-teal-950">Ser como los grandes, pero mejor</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleEasyRead(3)" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg text-xs md:text-sm border border-amber-600 focus:ring" aria-pressed="false" id="easy-btn-3">
+            🌱 Modo Lectura Fácil
+          </button>
+          <button onclick="readAloudText('cap3-content')" class="px-3 py-1.5 bg-teal-100 hover:bg-teal-200 text-teal-900 font-bold rounded-lg text-xs md:text-sm border border-teal-300 focus:ring" title="Leer en voz alta">
+            🔊 Escuchar
+          </button>
+        </div>
+      </div>
+
+      <!-- Texto Estándar -->
+      <div id="cap3-standard" class="space-y-4 text-slate-800 text-base md:text-lg leading-relaxed">
+        <p>Me llamo Carolina Jiménez, tengo 12 años y hago parte de la minijunta de acción comunal infantil de Hacarí. Hacarí es un municipio lleno de montañas hermosas, pero muchas familias carecen de carreteras, acueductos o materiales para la escuela.</p>
+        <p>Los adultos crearon las Juntas de Acción Comunal para arreglar caminos y gestionar soluciones. Inspirados en ellos, nuestro profesor de español Virgilio nos invitó a crear una obra de teatro y aprender música para soñar con un futuro distinto lejos del conflicto.</p>
+        <p>Cuando nos faltaba dinero para los trajes del Día del Idioma, Luisito Gómez propuso: <em>"¿Y por qué no hacemos nuestra propia junta, como los grandes?"</em>. Y alguien gritó: <em>"¡Sí, hacer como los grandes, pero mejor!"</em>.</p>
+        <p>Así nació la primera Minijunta Infantil. Escribimos un pliego de necesidades con tres sueños: disfraces teatrales, instrumentos musicales y una Casa de la Cultura. Con nuestro uniforme fuimos directo al despacho del alcalde. Logramos que nos arrendaran la primera Casa de la Cultura en el pueblo. Las niñas y niños del Catatumbo no nos rendimos.</p>
+      </div>
+
+      <!-- Texto Lectura Fácil -->
+      <div id="cap3-easy" class="hidden space-y-4 text-slate-900 text-lg md:text-xl leading-relaxed bg-amber-50 p-5 rounded-xl border border-amber-300">
+        <p>🔹 <strong>Me llamo Carolina</strong> y vivo en Hacarí.</p>
+        <p>🔹 <strong>El sueño cultural:</strong> El profesor Virgilio nos enseñó teatro y música para construir paz.</p>
+        <p>🔹 <strong>La Minijunta:</strong> Los niños creamos nuestra propia Junta de Acción Comunal Infantil.</p>
+        <p>🔹 <strong>La visita al alcalde:</strong> Fuimos con uniforme y le entregamos una carta con tres peticiones.</p>
+        <p>🔹 <strong>El gran logro:</strong> Conseguimos la primera Casa de la Cultura para todos los niños del municipio.</p>
+      </div>
+
+      <div class="flex justify-between items-center mt-8 pt-4 border-t border-amber-200">
+        <button onclick="goToSection('game-2')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg text-sm">⬅️ Reto 2</button>
+        <button onclick="goToSection('game-3')" class="px-5 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl shadow text-sm md:text-base flex items-center gap-2">
+          <span>Ir al Reto 3: Cuestionario</span>
+          <span aria-hidden="true">📝</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ACTIVIDAD 3: CUESTIONARIO REFLEXIVO CON AUDIO -->
+    <section id="section-game-3" class="hidden card-box bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-amber-200 fade-enter" role="region" aria-labelledby="game3-title">
+      <div class="border-b border-amber-200 pb-3 mb-4">
+        <span class="text-xs font-bold text-amber-700 uppercase">Actividad 3 • Comprensión y Reflexión</span>
+        <h2 id="game3-title" class="text-xl md:text-2xl font-bold text-teal-950">Cuestionario con Soporte Auditivo</h2>
+        <p class="text-sm text-slate-700 mt-1">Responde las 3 preguntas sobre los relatos. Puedes pulsar el icono de altavoz para escuchar cada pregunta y sus opciones.</p>
+      </div>
+
+      <form id="quiz-form" onsubmit="event.preventDefault(); checkQuiz();" class="space-y-6">
+        
+        <!-- Pregunta 1 -->
+        <fieldset class="p-4 bg-amber-50/70 rounded-xl border border-amber-200" id="q1-box">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <legend class="font-bold text-teal-950 text-base md:text-lg">1. ¿Qué acción protectora realizó la profesora Luz Estela en La Gabarra?</legend>
+            <button type="button" onclick="speakQuestion(1)" class="p-1.5 bg-amber-200 hover:bg-amber-300 rounded text-slate-900 text-sm focus:ring" title="Escuchar pregunta 1">🔊</button>
+          </div>
+          <div class="space-y-2 text-sm md:text-base text-slate-800">
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q1" value="A" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>A) Huyó sola en moto hacia la capital.</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q1" value="B" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>B) Cuidó y acompañó a los niños a través de la selva hasta ponerlos a salvo en Tibú.</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q1" value="C" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>C) Se quedó esperando en la escuela sin avisarle a nadie.</span>
+            </label>
+          </div>
+          <p id="q1-feedback" class="mt-2 text-xs md:text-sm font-semibold hidden"></p>
+        </fieldset>
+
+        <!-- Pregunta 2 -->
+        <fieldset class="p-4 bg-amber-50/70 rounded-xl border border-amber-200" id="q2-box">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <legend class="font-bold text-teal-950 text-base md:text-lg">2. ¿Por qué Ricardo le regala una gelatina a su hermana cada cumpleaños?</legend>
+            <button type="button" onclick="speakQuestion(2)" class="p-1.5 bg-amber-200 hover:bg-amber-300 rounded text-slate-900 text-sm focus:ring" title="Escuchar pregunta 2">🔊</button>
+          </div>
+          <div class="space-y-2 text-sm md:text-base text-slate-800">
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q2" value="A" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>A) Para recordar el amor de su papá y mantener viva su presencia en familia.</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q2" value="B" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>B) Porque era la única golosina que vendían en el pueblo.</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q2" value="C" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>C) Para cumplir una tarea obligatoria del colegio.</span>
+            </label>
+          </div>
+          <p id="q2-feedback" class="mt-2 text-xs md:text-sm font-semibold hidden"></p>
+        </fieldset>
+
+        <!-- Pregunta 3 -->
+        <fieldset class="p-4 bg-amber-50/70 rounded-xl border border-amber-200" id="q3-box">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <legend class="font-bold text-teal-950 text-base md:text-lg">3. ¿Qué gran logro alcanzaron los niños de la Minijunta de Hacarí?</legend>
+            <button type="button" onclick="speakQuestion(3)" class="p-1.5 bg-amber-200 hover:bg-amber-300 rounded text-slate-900 text-sm focus:ring" title="Escuchar pregunta 3">🔊</button>
+          </div>
+          <div class="space-y-2 text-sm md:text-base text-slate-800">
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q3" value="A" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>A) Compraron una flota de buses escolares nuevos.</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q3" value="B" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>B) Gestionaron con el alcalde la primera Casa de la Cultura del municipio.</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded border border-slate-200 cursor-pointer hover:bg-teal-50">
+              <input type="radio" name="q3" value="C" class="w-4 h-4 text-teal-600 focus:ring">
+              <span>C) Organizaron un campeonato de fútbol profesional.</span>
+            </label>
+          </div>
+          <p id="q3-feedback" class="mt-2 text-xs md:text-sm font-semibold hidden"></p>
+        </fieldset>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-amber-200">
+          <button type="button" onclick="goToSection(3)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg text-sm">⬅️ Volver al Capítulo 3</button>
+          <button type="submit" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow text-base">
+            Evaluar Respuestas 📊
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- SECCIÓN 4: RESULTADOS FINALES Y CERTIFICADO -->
+    <section id="section-4" class="hidden card-box bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-amber-200 text-center fade-enter" role="region" aria-labelledby="final-title">
+      <div class="inline-block p-4 bg-emerald-100 rounded-full mb-3 text-emerald-800">
+        <span class="text-5xl" aria-hidden="true">🏆</span>
+      </div>
+      <h2 id="final-title" class="text-2xl md:text-3xl font-extrabold text-teal-950 mb-2">¡Felicitaciones! Recorrido Completado</h2>
+      <p class="text-slate-700 text-base md:text-lg mb-6 max-w-xl mx-auto">Has explorado las memorias, la resiliencia y los colores del Catatumbo a través del respeto, el juego inclusivo y el aprendizaje mutuo.</p>
+
+      <div class="bg-teal-50 border border-teal-200 rounded-xl p-5 max-w-md mx-auto text-left mb-6 space-y-2 text-sm md:text-base">
+        <div class="flex justify-between">
+          <span class="font-semibold text-slate-700">Puntaje Total Obtenido:</span>
+          <span class="font-extrabold text-teal-800" id="final-score-val">100 / 100</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-semibold text-slate-700">Reto 1 (Secuencia Cronológica):</span>
+          <span class="font-bold text-emerald-700">Completado ✔️</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-semibold text-slate-700">Reto 2 (Sopa de Letras DUA):</span>
+          <span class="font-bold text-emerald-700">5 Palabras Halladas ✔️</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-semibold text-slate-700">Reto 3 (Cuestionario Reflexivo):</span>
+          <span class="font-bold text-emerald-700">3/3 Correctas ✔️</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="downloadLearningReport()" class="px-6 py-3 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl shadow-md flex items-center gap-2 focus:ring">
+          <span>Descargar Informe de Resultados (.txt)</span>
+          <span aria-hidden="true">📄</span>
+        </button>
+        <button onclick="goToSection(0)" class="px-5 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-sm md:text-base">
+          🔄 Volver al Inicio
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PIE DE PÁGINA ACCESIBLE -->
+  <footer class="bg-teal-900 text-teal-100 text-center py-4 px-4 text-xs md:text-sm border-t border-teal-800 mt-auto" role="contentinfo">
+    <p>Recurso Educativo Abierto e Inclusivo (DUA) adaptado de <em>Historias y colores de mi región</em> (CNMH, 2018).</p>
+    <p class="text-teal-300 mt-1">Listo para instalación como Progressive Web App (PWA) y exportación nativa APK.</p>
+  </footer>
+
+  <!-- SCRIPT LÓGICO Y ACCESIBILIDAD -->
+  <script>
+    // ESTADO DE LA APLICACIÓN
+    let currentSection = 0;
+    let score = 0;
+    let fontScale = 1.0;
+    let deferredPrompt = null;
+
+    // REGISTRO DE SERVICE WORKER PARA PWA / PWABUILDER
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('ServiceWorker registrado:', reg.scope))
+          .catch(err => console.log('Error registrando ServiceWorker:', err));
+      });
+    }
+
+    // CAPTURA DE EVENTO DE INSTALACIÓN PWA
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const pwaBtn = document.getElementById('btn-pwa-install');
+      if (pwaBtn) pwaBtn.classList.remove('hidden');
+    });
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('El usuario aceptó la instalación');
+          }
+          deferredPrompt = null;
+          document.getElementById('btn-pwa-install').classList.add('hidden');
+        });
+      }
+    }
+
+    // ACCESIBILIDAD: FUENTE DYSLEXIC
+    function toggleDyslexicFont() {
+      const body = document.body;
+      const btn = document.getElementById('btn-font-toggle');
+      const isDyslexic = body.classList.toggle('font-opendyslexic');
+      btn.setAttribute('aria-pressed', isDyslexic);
+      btn.classList.toggle('bg-amber-500', isDyslexic);
+      btn.classList.toggle('text-slate-950', isDyslexic);
+    }
+
+    // ACCESIBILIDAD: ALTO CONTRASTE
+    function toggleHighContrast() {
+      const body = document.body;
+      const btn = document.getElementById('btn-contrast-toggle');
+      const isHighContrast = body.classList.toggle('high-contrast');
+      btn.setAttribute('aria-pressed', isHighContrast);
+      btn.classList.toggle('bg-yellow-400', isHighContrast);
+      btn.classList.toggle('text-black', isHighContrast);
+    }
+
+    // ACCESIBILIDAD: ESCALADO DE FUENTE
+    function changeFontSize(direction) {
+      if (direction === 1 && fontScale < 1.3) fontScale += 0.1;
+      if (direction === -1 && fontScale > 0.8) fontScale -= 0.1;
+      document.documentElement.style.fontSize = `${fontScale * 100}%`;
+      document.getElementById('font-size-indicator').innerText = `${Math.round(fontScale * 100)}%`;
+    }
+
+    // NAVEGACIÓN ENTRE SECCIONES
+    function goToSection(sectionId) {
+      // Ocultar todas
+      document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+      
+      const target = document.getElementById(`section-${sectionId}`);
+      if (target) {
+        target.classList.remove('hidden');
+        target.focus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // Actualizar Barra de Progreso
+      const progText = document.getElementById('progress-text');
+      const progBar = document.getElementById('progress-bar');
+      const progContainer = document.getElementById('progress-bar-container');
+
+      const labels = {
+        0: { text: "Progreso: Portada", pct: "10%" },
+        1: { text: "Capítulo 1: La superprofesora", pct: "25%" },
+        'game-1': { text: "Reto 1: Secuencia de Hechos", pct: "40%" },
+        2: { text: "Capítulo 2: La última gelatina", pct: "55%" },
+        'game-2': { text: "Reto 2: Sopa de Letras", pct: "70%" },
+        3: { text: "Capítulo 3: La Minijunta", pct: "85%" },
+        'game-3': { text: "Reto 3: Cuestionario Reflexivo", pct: "95%" },
+        4: { text: "Progreso: ¡Recorrido Finalizado!", pct: "100%" }
+      };
+
+      if (labels[sectionId]) {
+        progText.innerText = labels[sectionId].text;
+        progBar.style.width = labels[sectionId].pct;
+        progContainer.setAttribute('aria-valuenow', parseInt(labels[sectionId].pct));
+      }
+    }
+
+    // TOGGLE LECTURA FÁCIL
+    function toggleEasyRead(capNumber) {
+      const std = document.getElementById(`cap${capNumber}-standard`);
+      const easy = document.getElementById(`cap${capNumber}-easy`);
+      const btn = document.getElementById(`easy-btn-${capNumber}`);
+      const isEasy = easy.classList.toggle('hidden');
+      std.classList.toggle('hidden', !isEasy);
+      btn.setAttribute('aria-pressed', !isEasy);
+      btn.innerText = !isEasy ? "📖 Ver Texto Original" : "🌱 Modo Lectura Fácil";
+    }
+
+    // SÍNTESIS DE VOZ (AUDIO LECTURA)
+    function readAloudText(type) {
+      if (!('speechSynthesis' in window)) {
+        alert("Tu navegador no soporta síntesis de voz.");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      let text = "";
+      if (type === 'cap1-content') {
+        text = document.getElementById('cap1-easy').classList.contains('hidden') 
+          ? document.getElementById('cap1-standard').innerText 
+          : document.getElementById('cap1-easy').innerText;
+      } else if (type === 'cap2-content') {
+        text = document.getElementById('cap2-easy').classList.contains('hidden') 
+          ? document.getElementById('cap2-standard').innerText 
+          : document.getElementById('cap2-easy').innerText;
+      } else if (type === 'cap3-content') {
+        text = document.getElementById('cap3-easy').classList.contains('hidden') 
+          ? document.getElementById('cap3-standard').innerText 
+          : document.getElementById('cap3-easy').innerText;
+      }
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'es-CO';
+      utter.rate = 0.95;
+      window.speechSynthesis.speak(utter);
+    }
+
+    // ----------------------------------------------------
+    // JUEGO 1: ORDENAR 6 FRASES
+    // ----------------------------------------------------
+    const originalGame1Items = [
+      { id: 1, text: "Pacho nace en la vereda Barrancas de La Gabarra y sueña con ser futbolista.", icon: "⚽" },
+      { id: 2, text: "Los padres de Pacho quedan atrapados en Cúcuta por fuertes lluvias en la vía.", icon: "🌧️" },
+      { id: 3, text: "La profe Luz Estela se entera de la llegada de hombres armados y decide proteger a los niños.", icon: "🛡️" },
+      { id: 4, text: "El grupo se adentra en la selva, comparte un pan y duerme a la intemperie.", icon: "🍞" },
+      { id: 5, text: "Jefferson sueña con que su maestra tiene superpoderes y les deja regalos de paz.", icon: "✨" },
+      { id: 6, text: "Un boga compasivo los rescata en su canoa por el río Catatumbo y los lleva a Tibú.", icon: "🛶" }
+    ];
+
+    let currentGame1Items = [...originalGame1Items].sort(() => Math.random() - 0.5);
+    let game1Attempts = 3;
+
+    function renderGame1() {
+      const listEl = document.getElementById('game1-list');
+      listEl.innerHTML = '';
+      currentGame1Items.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = "flex items-center justify-between p-3 bg-amber-50/90 border-2 border-amber-200 rounded-xl gap-2 transition-all";
+        li.innerHTML = `
+          <div class="flex items-center gap-3 flex-grow">
+            <span class="text-2xl" aria-hidden="true">${item.icon}</span>
+            <span class="text-sm md:text-base font-medium text-slate-800">${item.text}</span>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-1">
+            <button onclick="moveGame1(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="p-1.5 bg-teal-100 hover:bg-teal-200 disabled:opacity-30 rounded text-xs font-bold text-teal-900 border border-teal-300" aria-label="Subir frase ${item.id}">⬆️</button>
+            <button onclick="moveGame1(${index}, 1)" ${index === currentGame1Items.length - 1 ? 'disabled' : ''} class="p-1.5 bg-teal-100 hover:bg-teal-200 disabled:opacity-30 rounded text-xs font-bold text-teal-900 border border-teal-300" aria-label="Bajar frase ${item.id}">⬇️</button>
+          </div>
+        `;
+        listEl.appendChild(li);
+      });
+    }
+
+    function moveGame1(index, dir) {
+      const targetIndex = index + dir;
+      if (targetIndex < 0 || targetIndex >= currentGame1Items.length) return;
+      const temp = currentGame1Items[index];
+      currentGame1Items[index] = currentGame1Items[targetIndex];
+      currentGame1Items[targetIndex] = temp;
+      renderGame1();
+    }
+
+    function checkGame1() {
+      const isCorrect = currentGame1Items.every((item, idx) => item.id === idx + 1);
+      const feedbackBadge = document.getElementById('game1-feedback-badge');
+      const hintBox = document.getElementById('game1-hint-box');
+      const nextBtn = document.getElementById('btn-next-to-cap2');
+
+      if (isCorrect) {
+        feedbackBadge.className = "px-3 py-1 rounded bg-emerald-600 text-white font-bold";
+        feedbackBadge.innerText = "¡Excelente! Secuencia Correcta (+30 pts)";
+        feedbackBadge.classList.remove('hidden');
+        hintBox.classList.add('hidden');
+        nextBtn.classList.remove('hidden');
+        score += 30;
+        updateScore();
+      } else {
+        game1Attempts--;
+        document.getElementById('game1-attempts').innerText = `Intentos restantes: ${game1Attempts} de 3`;
+        if (game1Attempts > 0) {
+          feedbackBadge.className = "px-3 py-1 rounded bg-amber-600 text-white font-bold";
+          feedbackBadge.innerText = "Aún no está en orden. Revisa las pistas.";
+          feedbackBadge.classList.remove('hidden');
+          hintBox.innerHTML = `<strong>💡 Pista pedagógica:</strong> La historia inicia con la infancia de Pacho en Barrancas ⚽ y concluye con la ayuda del boga en la canoa 🛶.`;
+          hintBox.classList.remove('hidden');
+        } else {
+          // Mostrar solución tras agotar intentos
+          currentGame1Items = [...originalGame1Items];
+          renderGame1();
+          feedbackBadge.className = "px-3 py-1 rounded bg-blue-600 text-white font-bold";
+          feedbackBadge.innerText = "Te mostramos el orden cronológico correcto para aprender juntos.";
+          feedbackBadge.classList.remove('hidden');
+          hintBox.classList.add('hidden');
+          nextBtn.classList.remove('hidden');
+          score += 15;
+          updateScore();
+        }
+      }
+    }
+
+    // ----------------------------------------------------
+    // JUEGO 2: SOPA DE LETRAS NAVEGABLE POR TECLADO
+    // ----------------------------------------------------
+    const targetWords = ["GELATINA", "MEMORIA", "CATATUMBO", "ESPERANZA", "TEORAMA"];
+    const gridLetters = [
+      ['G','E','L','A','T','I','N','A','X','C'],
+      ['M','E','M','O','R','I','A','Q','W','A'],
+      ['C','A','T','A','T','U','M','B','O','T'],
+      ['E','S','P','E','R','A','N','Z','A','A'],
+      ['T','E','O','R','A','M','A','Y','U','T'],
+      ['R','I','O','F','L','O','R','E','S','U'],
+      ['A','R','C','O','I','R','I','S','P','M'],
+      ['S','O','L','I','D','A','R','I','O','B'],
+      ['C','A','M','P','E','S','I','N','O','O'],
+      ['P','A','Z','V','I','D','A','B','A','R']
+    ];
+
+    let foundWords = new Set();
+    let selectedCells = [];
+
+    function renderWordSearch() {
+      const grid = document.getElementById('wordsearch-grid');
+      grid.innerHTML = '';
+      for (let r = 0; r < 10; r++) {
+        for (let c = 0; c < 10; c++) {
+          const btn = document.createElement('button');
+          btn.id = `cell-${r}-${c}`;
+          btn.className = "w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-slate-100 hover:bg-amber-200 text-slate-900 font-bold rounded text-xs sm:text-sm border border-slate-300 focus:bg-amber-300 focus:ring";
+          btn.innerText = gridLetters[r][c];
+          btn.setAttribute('aria-label', `Fila ${r+1}, Columna ${c+1}, Letra ${gridLetters[r][c]}`);
+          btn.onclick = () => selectCell(r, c);
+          
+          // Navegación con flechas del teclado
+          btn.onkeydown = (e) => handleGridKey(e, r, c);
+          grid.appendChild(btn);
+        }
+      }
+    }
+
+    function handleGridKey(e, r, c) {
+      let targetR = r;
+      let targetC = c;
+      if (e.key === 'ArrowUp') targetR = Math.max(0, r - 1);
+      else if (e.key === 'ArrowDown') targetR = Math.min(9, r + 1);
+      else if (e.key === 'ArrowLeft') targetC = Math.max(0, c - 1);
+      else if (e.key === 'ArrowRight') targetC = Math.min(9, c + 1);
+      else return;
+
+      e.preventDefault();
+      const targetCell = document.getElementById(`cell-${targetR}-${targetC}`);
+      if (targetCell) targetCell.focus();
+    }
+
+    function selectCell(r, c) {
+      const cell = document.getElementById(`cell-${r}-${c}`);
+      const already = selectedCells.findIndex(pos => pos.r === r && pos.c === c);
+      if (already >= 0) {
+        selectedCells.splice(already, 1);
+        cell.classList.remove('bg-amber-400');
+      } else {
+        selectedCells.push({ r, c, char: gridLetters[r][c] });
+        cell.classList.add('bg-amber-400');
+      }
+      checkWordSearchMatch();
+    }
+
+    function checkWordSearchMatch() {
+      const currentWord = selectedCells.map(p => p.char).join('');
+      if (targetWords.includes(currentWord) && !foundWords.has(currentWord)) {
+        foundWords.add(currentWord);
+        selectedCells.forEach(p => {
+          const c = document.getElementById(`cell-${p.r}-${p.c}`);
+          c.className = "w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-emerald-500 text-white font-extrabold rounded text-xs sm:text-sm border border-emerald-600";
+        });
+        const badge = document.getElementById(`badge-${currentWord}`);
+        if (badge) {
+          badge.className = "px-3 py-1 bg-emerald-600 text-white rounded-full font-bold line-through";
+        }
+        selectedCells = [];
+        document.getElementById('game2-status').innerText = `Palabras encontradas: ${foundWords.size} de 5`;
+        score += 8;
+        updateScore();
+
+        if (foundWords.size === 5) {
+          document.getElementById('btn-next-to-cap3').classList.remove('hidden');
+          document.getElementById('game2-status').innerText = "¡Completaste toda la sopa de letras! (+40 pts)";
+        }
+      }
+    }
+
+    function revealWordHint() {
+      // Resaltar una palabra no encontrada
+      for (const w of targetWords) {
+        if (!foundWords.has(w)) {
+          alert(`Pista: La palabra "${w}" se encuentra dispuesta horizontalmente en las primeras filas.`);
+          break;
+        }
+      }
+    }
+
+    // ----------------------------------------------------
+    // JUEGO 3: CUESTIONARIO CON VOZ
+    // ----------------------------------------------------
+    const quizQuestions = {
+      1: "Pregunta 1: ¿Qué acción protectora realizó la profesora Luz Estela en La Gabarra? Opción A: Huyó sola en moto hacia la capital. Opción B: Cuidó y acompañó a los niños a través de la selva hasta ponerlos a salvo en Tibú. Opción C: Se quedó esperando en la escuela sin avisarle a nadie.",
+      2: "Pregunta 2: ¿Por qué Ricardo le regala una gelatina a su hermana cada cumpleaños? Opción A: Para recordar el amor de su papá y mantener viva su presencia en familia. Opción B: Porque era la única golosina que vendían en el pueblo. Opción C: Para cumplir una tarea obligatoria del colegio.",
+      3: "Pregunta 3: ¿Qué gran logro alcanzaron los niños de la Minijunta de Hacarí? Opción A: Compraron una flota de buses escolares nuevos. Opción B: Gestionaron con el alcalde la primera Casa de la Cultura del municipio. Opción C: Organizaron un campeonato de fútbol profesional."
+    };
+
+    function speakQuestion(num) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(quizQuestions[num]);
+      utter.lang = 'es-CO';
+      utter.rate = 0.95;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function checkQuiz() {
+      const q1 = document.querySelector('input[name="q1"]:checked');
+      const q2 = document.querySelector('input[name="q2"]:checked');
+      const q3 = document.querySelector('input[name="q3"]:checked');
+
+      if (!q1 || !q2 || !q3) {
+        alert("Por favor selecciona una respuesta para cada una de las 3 preguntas.");
+        return;
+      }
+
+      let qCorrect = 0;
+      // Evaluar Q1
+      const q1F = document.getElementById('q1-feedback');
+      q1F.classList.remove('hidden');
+      if (q1.value === 'B') {
+        q1F.innerText = "¡Correcto! La profesora Luz Estela actuó como un escudo protector para los niños.";
+        q1F.className = "mt-2 text-xs md:text-sm font-semibold text-emerald-700";
+        qCorrect++;
+      } else {
+        q1F.innerText = "Respuesta incorrecta. La respuesta adecuada es la B: acompañó a los niños por la selva.";
+        q1F.className = "mt-2 text-xs md:text-sm font-semibold text-amber-700";
+      }
+
+      // Evaluar Q2
+      const q2F = document.getElementById('q2-feedback');
+      q2F.classList.remove('hidden');
+      if (q2.value === 'A') {
+        q2F.innerText = "¡Correcto! La gelatina representa el regalo y la memoria viva del padre.";
+        q2F.className = "mt-2 text-xs md:text-sm font-semibold text-emerald-700";
+        qCorrect++;
+      } else {
+        q2F.innerText = "Respuesta incorrecta. La respuesta adecuada es la A: mantener vivo el amor y recuerdo de su padre.";
+        q2F.className = "mt-2 text-xs md:text-sm font-semibold text-amber-700";
+      }
+
+      // Evaluar Q3
+      const q3F = document.getElementById('q3-feedback');
+      q3F.classList.remove('hidden');
+      if (q3.value === 'B') {
+        q3F.innerText = "¡Correcto! Lograron crear y abrir la Casa de la Cultura con el apoyo municipal.";
+        q3F.className = "mt-2 text-xs md:text-sm font-semibold text-emerald-700";
+        qCorrect++;
+      } else {
+        q3F.innerText = "Respuesta incorrecta. La respuesta adecuada es la B: la primera Casa de la Cultura.";
+        q3F.className = "mt-2 text-xs md:text-sm font-semibold text-amber-700";
+      }
+
+      score += (qCorrect * 10);
+      updateScore();
+
+      setTimeout(() => {
+        document.getElementById('final-score-val').innerText = `${score} / 100 Puntos`;
+        goToSection(4);
+      }, 1500);
+    }
+
+    function updateScore() {
+      document.getElementById('score-badge').innerText = `Puntaje: ${score} pts`;
+    }
+
+    // DESCARGAR INFORME EDUCATIVO
+    function downloadLearningReport() {
+      const dateStr = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+      const report = `=====================================================
+INFORME DE APRENDIZAJE Y PARTICIPACIÓN DUA
+Obra: Historias y colores de mi región (Catatumbo)
+Centro Nacional de Memoria Histórica
+Fecha de Culminación: ${dateStr}
+=====================================================
+
+1. RESULTADOS FORMATIVOS:
+   • Puntaje Final: ${score} / 100 puntos
+   • Reto 1 (Orden cronológico de hechos): SUPERADO
+   • Reto 2 (Sopa de letras de memoria viva): 5 PALABRAS IDENTIFICADAS
+   • Reto 3 (Cuestionario reflexivo): EVALUADO SATISFACTORIAMENTE
+
+2. APRENDIZAJES CLAVE:
+   • Reconocimiento del papel protector de las maestras y maestros rurales.
+   • El valor del duelo, los símbolos de amor familiar y la memoria que sana.
+   • La capacidad de agencia y organización comunitaria infantil (Minijuntas).
+
+3. CRITERIOS DE ACCESIBILIDAD UNIVERSAL APLICADOS:
+   • Modo Lectura Fácil según directrices de inclusión cognitiva.
+   • Tipografía OpenDyslexic para facilitar la lectoescritura.
+   • Paleta accesible WCAG AAA en alto contraste.
+   • Navegación autónoma por teclado y soporte de lectura con síntesis de voz.
+
+Certificado emitido digitalmente para fines educativos y de reconciliación comunitaria.
+`;
+      const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Informe_Aprendizaje_Catatumbo_DUA.txt`;
+      link.click();
+    }
+
+    // Inicializar juegos al cargar
+    window.addEventListener('DOMContentLoaded', () => {
+      renderGame1();
+      renderWordSearch();
+    });
+  </script>
+</body>
+</html>
